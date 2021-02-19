@@ -12,18 +12,18 @@ address=":8000"
 {% for cluster in burrow_clusters %}
 [cluster.{{ cluster.name }}]
 class-name="kafka"
-servers=[{% for host in cluster.kafka_hosts %}"{{host}}"{% if not loop.last %},{% endif %}{% endfor %}]
+servers=[{% for host in cluster.kafka_hosts %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
 topic-refresh=60
 offset-refresh=30
 
 [consumer.{{ cluster.name }}]
 class-name="kafka"
 cluster="{{ cluster.name }}"
-servers=[{% for host in cluster.kafka_hosts %}"{{host}}"{% if not loop.last %},{% endif %}{% endfor %}]
+servers=[{% for host in cluster.kafka_hosts %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
 
 [consumer.{{ cluster.name }}_zk]
 class-name="kafka_zk"
 cluster="{{ cluster.name }}"
-servers=[{% for host in cluster.zookeeper_hosts %}"{{host}}"{% if not loop.last %},{% endif %}{% endfor %}]
+servers=[{% for host in cluster.zookeeper_hosts %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
 
 {% endfor %}
