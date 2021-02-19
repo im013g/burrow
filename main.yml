@@ -1,0 +1,7 @@
+---
+
+- hosts: burrow
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: burrow-docker-compose, tags: burrow }

@@ -1,0 +1,45 @@
+---
+
+# Common
+compose_path:     "/composes"
+docker_user_id:   "1501"
+docker_group_id:  "1501"
+
+### Burrow 
+burrow_project_name:  "burrow"
+burrow_home:          "{{ compose_path }}/{{ burrow_project_name }}"
+burrow_image:         "docker.pkg.github.com/linkedin/burrow/burrow"
+burrow_version:       "1.3.6"
+burrow_port:          "8000"
+
+burrow_clusters:
+
+  - name: "my_cluster_one"
+    kafka_hosts:
+      - kafka-cluster_one-01:9092
+      - kafka-cluster_one-02:9092
+      - kafka-cluster_one-03:9092
+    zookeeper_hosts:
+      - zookeeper-cluster_one-01:2181
+      - zookeeper-cluster_one-02:2181
+      - zookeeper-cluster_one-03:2181
+
+  - name: "my_cluster_two"
+    kafka_hosts:
+      - kafka-cluster_two-01:9092
+      - kafka-cluster_two-02:9092
+      - kafka-cluster_two-03:9092
+    zookeeper_hosts:
+      - zookeeper-cluster_two-01:2181
+      - zookeeper-cluster_two-02:2181
+      - zookeeper-cluster_two-03:2181 
+
+### Zookeeper for burrow
+zookeeper_project_name: "zookeeper"
+zookeeper_image:        "zookeeper"
+zookeeper_version:      "3.5.6"
+zookeeper_port:         "2181"
+zookeeper_metrics_port: "7070"
+zookeeper_admin_port:   "7071"
+zookeeper_autopurge_interval:   24 # hours
+zookeeper_autopurge_snap_count: 10 

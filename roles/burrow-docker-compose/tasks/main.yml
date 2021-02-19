@@ -1,0 +1,49 @@
+---
+
+- name: Pull images
+  shell:
+    cmd: docker pull "{{ item.image }}"
+  loop:
+    - { image: "{{ burrow_image }}:v{{ burrow_version }}" }
+    - { image: "{{ zookeeper_image }}:{{ zookeeper_version }}" }
+
+- name: Create poject dirs
+  file:
+    name: "{{ item.path }}"
+    state: directory
+    mode: "0775"
+    owner: "{{ docker_user_id }}"
+    group: "{{ docker_group_id }}"
+  loop:
+    - { path: "{{ burrow_home }}/{{ burrow_project_name }}"     }
+    - { path: "{{ burrow_home }}/{{ burrow_project_name }}/tmp" }
+    - { path: "{{ burrow_home }}/{{ zookeeper_project_name }}"         }
+    - { path: "{{ burrow_home }}/{{ zookeeper_project_name }}/data"    }
+    - { path: "{{ burrow_home }}/{{ zookeeper_project_name }}/datalog" }
+
+- name: Template compose, service unit and configs
+  template:
+    src: "{{ item.j2 }}"
+    dest: "{{ item.target }}"
+    mode: "0664"
+    owner: "{{ docker_user_id }}"
+    group: "{{ docker_group_id }}"
+  loop:
+    - { j2: "docker-compose.yml.j2",     target: "{{ burrow_home }}/docker-compose.yml" }
+    - { j2: "burrow.toml.j2",            target: "{{ burrow_home }}/{{ burrow_project_name }}/burrow.toml" }
+    - { j2: "zoo.cfg.j2",                target: "{{ burrow_home }}/{{ zookeeper_project_name }}/zoo.cfg"   }
+    - { j2: "burrow-docker@.service.j2", target: "/etc/systemd/system/{{ burrow_project_name }}-docker@.service"   }
+  notify: 
+    - "Restart burrow service"
+    - "Sleep for 15 seconds"
+    - "Check burrow"
+
+- name: UP via systemd
+  systemd:
+    name: "{{ burrow_project_name }}-docker@{{ burrow_project_name }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  notify: 
+    - "Sleep for 15 seconds"
+    - "Check burrow"

@@ -1,0 +1,61 @@
+version: "2"
+services:
+  {{ burrow_project_name }}:
+    container_name: {{ inventory_hostname_short }}_{{ burrow_project_name }}
+    image: {{ burrow_image }}:v{{ burrow_version }}
+    user: "{{ docker_user_id }}"
+    volumes:
+      - ./{{ burrow_project_name }}/burrow.toml:/etc/burrow/burrow.toml
+      - ./{{ burrow_project_name }}/tmp:/var/tmp/burrow
+    ports:
+      - {{ burrow_port }}:8000
+{% if burrow_logs_fluent == "true" %}
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: {{ fluentd_haproxy_host }}:{{ fluentd_haproxy_port_burrow }}
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: "2s"
+        fluentd-max-retries: "60"
+        mode: non-blocking
+        tag: burrow
+{% else %}
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "1g"
+            max-file: "2"
+{% endif %}
+    depends_on:
+      - {{ zookeeper_project_name }}
+    restart: always
+
+  {{ zookeeper_project_name }}:
+    container_name: {{ inventory_hostname_short }}_{{ burrow_project_name }}_{{ zookeeper_project_name }}
+    image: {{ zookeeper_image }}:{{ zookeeper_version }}
+    user: "{{ docker_user_id }}"
+    volumes:
+      - ./{{ zookeeper_project_name }}/data:/data
+      - ./{{ zookeeper_project_name }}/datalog:/datalog
+      - ./{{ zookeeper_project_name }}/zoo.cfg:/conf/zoo.cfg
+    ports:
+      - {{ zookeeper_port }}:{{ zookeeper_port }}
+      - {{ zookeeper_metrics_port }}:{{ zookeeper_metrics_port }}
+      - {{ zookeeper_admin_port }}:8080
+{% if zookeeper_logs_fluent == "true" %}
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: {{ fluentd_haproxy_host }}:{{ fluentd_haproxy_port_zookeeper }}
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: "2s"
+        fluentd-max-retries: "60"
+        mode: non-blocking
+        tag: zookeeper_common.burrow
+{% else %}
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "1g"
+            max-file: "2"
+{% endif %}

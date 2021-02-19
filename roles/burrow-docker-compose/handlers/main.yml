@@ -1,0 +1,23 @@
+---
+
+- name: "Restart burrow service"
+  service:
+    name: "{{ burrow_project_name }}-docker@{{ burrow_project_name }}"
+    state: restarted
+
+- name: "Sleep for 15 seconds"
+  wait_for:
+    timeout: 15
+  delegate_to: localhost
+  become: no
+
+- name:  "Check burrow"
+  uri:
+    url: "http://{{ ansible_fqdn }}:{{ item.port }}/metrics"
+    return_content: no
+    timeout: 15
+    method: GET
+  register: http_answer
+  failed_when: http_answer.status != 200
+  loop: 
+    - { port: '{{ burrow_port }}'  }

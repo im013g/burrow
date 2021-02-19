@@ -1,0 +1,27 @@
+[Unit]
+Description="%i service with docker-compose"
+
+Requires=docker.service
+After=docker.service
+
+StartLimitInterval=60
+StartLimitBurst=3
+
+[Service]
+Restart=on-failure
+RestartSec=30
+
+WorkingDirectory={{ compose_path }}/%i
+
+# Remove old containers, network and volumes
+ExecStartPre=/usr/local/bin/docker-compose -f docker-compose.yml down -v
+ExecStartPre=-/bin/bash -c 'docker ps -aqf "name={{ burrow_project_name }}" | xargs docker rm'
+
+# Compose up
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml up
+
+# Compose down, remove containers
+ExecStop=/usr/local/bin/docker-compose -f docker-compose.yml down
+
+[Install]
+WantedBy=multi-user.target
