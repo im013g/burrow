@@ -1,4 +1,4 @@
-burrow_clusters:
+kafka_clusters:
 
   - name: "my_cluster_one"
     kafka_hosts:

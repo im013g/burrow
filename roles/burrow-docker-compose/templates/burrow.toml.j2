@@ -9,7 +9,7 @@ root-path="/burrow"
 [httpserver.default]
 address=":8000"
 
-{% for cluster in burrow_clusters %}
+{% for cluster in kafka_clusters %}
 [cluster.{{ cluster.name }}]
 class-name="kafka"
 servers=[{% for host in cluster.kafka_hosts %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]

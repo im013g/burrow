@@ -13,10 +13,10 @@ Requirements
 Role Variables
 --------------
 
-In common way you should redefine only one dict , ` burrow_clusters `.
+In common way you should redefine only one dict , ` kafka_clusters `.
 
 ```yml
-burrow_clusters:
+kafka_clusters:
 
   - name: "my_cluster_one"
     kafka_hosts:
